@@ -1,17 +1,18 @@
 import axios from "axios";
 import React from "react";
 
-// type NewProduct = {
-//     name: string | null
-//     description: string | null
-//     price: number | null
-//     quantity: number | null
-//     category: string | null
-//     imageUrl: string | null
-// }
+interface IProduct {
+  id?: number;
+  name?: string;
+  description?: string;
+  price?: number;
+  quantity?: number;
+  category?: string;
+  image_url?: string;
+}
 
 const AdminPage = () => {
-  const addProduct = async (productData: any) => {
+  const addProduct = async (productData: IProduct) => {
     try {
       const response = await axios.post("/api/v1/products", productData, {
         headers: { "Content-Type": "application/json" },
@@ -22,8 +23,17 @@ const AdminPage = () => {
     }
   };
 
-  const updateProduct = async (productData: any) => {
+  const updateProduct = async (productData: IProduct) => {
     try {
+      const response = await axios.put(
+        `/api/v1/products/${productData["id"]}`,
+        productData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log(response.data);
     } catch (error) {
       console.error(`Unable to update product ${error}`);
     }
@@ -34,13 +44,13 @@ const AdminPage = () => {
 
     const formData = new FormData(event.currentTarget);
 
-    const formValues = {
-      name: formData.get("name"),
-      description: formData.get("description"),
-      price: formData.get("price"),
-      quantity: formData.get("quantity"),
-      category: formData.get("category"),
-      image_url: formData.get("imageUrl"),
+    const formValues: IProduct = {
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      price: Number(formData.get("price")),
+      quantity: Number(formData.get("quantity")),
+      category: String(formData.get("category") ?? ""),
+      image_url: String(formData.get("imageUrl") ?? ""),
     };
 
     addProduct(formValues);
@@ -48,6 +58,20 @@ const AdminPage = () => {
 
   const handleUpdateProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+
+    const formValues: IProduct = {
+      id: Number(formData.get("id")),
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      price: Number(formData.get("price")),
+      quantity: Number(formData.get("quantity")),
+      category: String(formData.get("category") ?? ""),
+      image_url: String(formData.get("imageUrl") ?? ""),
+    };
+
+    updateProduct(formValues);
   };
   const handleDeleteProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,6 +79,7 @@ const AdminPage = () => {
   return (
     <div>
       <h1>Admin Page</h1>
+
       <h2>Add Product</h2>
       <form onSubmit={handleAddProduct}>
         <label>
@@ -83,8 +108,40 @@ const AdminPage = () => {
         </label>
         <button type="submit">Submit</button>
       </form>
+
       <h2>Update Product</h2>
-      <form onSubmit={handleUpdateProduct}></form>
+      <form onSubmit={handleUpdateProduct}>
+        <label>
+          Item Id:
+          <input type="number" name="id" required />
+        </label>
+        <label>
+          Item Name:
+          <input type="text" name="name" />
+        </label>
+        <label>
+          Item Description:
+          <input type="text" name="description" />
+        </label>
+        <label>
+          Price:
+          <input type="number" name="price" step="0.01" min={0} />
+        </label>
+        <label>
+          Quantity:
+          <input type="number" name="quantity" min={0} />
+        </label>
+        <label>
+          Category:
+          <input type="text" name="category" />
+        </label>
+        <label>
+          Image Url:
+          <input type="text" name="imageUrl" />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+
       <h2>Delete Product</h2>
       <form onSubmit={handleDeleteProduct}></form>
     </div>
