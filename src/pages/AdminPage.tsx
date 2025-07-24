@@ -39,6 +39,18 @@ const AdminPage = () => {
     }
   };
 
+  const deleteProduct = async (productData: IProduct) => {
+    try {
+      const response = await axios.delete(
+        `/api/v1/products/${productData["id"]}`
+      );
+
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleAddProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -73,9 +85,18 @@ const AdminPage = () => {
 
     updateProduct(formValues);
   };
+
   const handleDeleteProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    const formValues: IProduct = {
+      id: Number(formData.get("id")),
+    };
+
+    deleteProduct(formValues);
   };
+
   return (
     <div>
       <h1>Admin Page</h1>
@@ -143,7 +164,13 @@ const AdminPage = () => {
       </form>
 
       <h2>Delete Product</h2>
-      <form onSubmit={handleDeleteProduct}></form>
+      <form onSubmit={handleDeleteProduct}>
+        <label>
+          Item Id:
+          <input type="number" name="id" required />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
     </div>
   );
 };
